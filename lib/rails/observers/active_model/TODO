@@ -1,0 +1,30 @@
+Generally:
+- Upon setting up observers, instantiate them, but don't rush to load the classes they observe. instead, hook into those by monitoring the inherit callbacks of Active*::Base
+- ObserverArray should *only* store Observer instances. No need to store observer classes at all. (Can create a delegator to helpful methods in the class.)
+- Note: Do not change public methods (or at least create aliases to preserve functionality).
+  - ActiveModel::Observing
+    - ::observers=(*values)
+    - ::observers
+    - ::observer_instances
+    - ::instantiate_observers
+    - ::add_observer(val)
+    - ::notify_observers(*args)
+    - ::observers_count
+    - ::observer_orm
+    - #notify_observers(method, *extra_args)
+  - ActiveModel::Observer
+    - ::observe(*models)
+    - ::observed_classes
+    - ::observed_class
+    - #initialize
+    - #observed_classes
+    - #update(observed_method, object, *extra_args, &block)
+    - #observed_class_inherited(subclass)
+  - ActiveModel::ObserverArray < Array
+    - #model_class (attr_reader)
+    - #initialize(model_class, *args)
+    - #disabled_for?(observer)
+    - #disable(*observers, &block)
+    - #enable(*observers, &block)
+
+    

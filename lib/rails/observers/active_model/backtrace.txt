@@ -1,0 +1,69 @@
+#0  ActiveModel::Observing::ClassMethods.instantiate_observer(observer#Class) at ./rails-observers/lib/rails/observers/active_model/observing.rb:195
+--> #1  block in ActiveModel::Observing::ClassMethods.block in instantiate_observers at ./rails-observers/lib/rails/observers/active_model/observing.rb:114
+ͱ-- #2  Array.each at ./rails-observers/lib/rails/observers/active_model/observing.rb:114
+#3  ActiveModel::Observing::ClassMethods.instantiate_observers at ./rails-observers/lib/rails/observers/active_model/observing.rb:114
+#6  #<Class:ActiveRecord::Base>.inherited(subclass#Class) at ./rails-observers/lib/rails/observers/active_model/observing.rb:17
+#7  <top (required)> at /tmp/mvastola/observer-test/app/models/user.rb:2
+ͱ-- #8  #<Class:Kernel>.load(*args) at ./activesupport-5.0.x/lib/active_support/dependencies.rb:477
+#9  block in ActiveSupport::Dependencies.block in load_file(path#String, const_paths#Array) at ./activesupport-5.0.x/lib/active_support/dependencies.rb:477
+#10 ActiveSupport::Dependencies.new_constants_in(*descs#Array) at ./activesupport-5.0.x/lib/active_support/dependencies.rb:662
+#11 ActiveSupport::Dependencies.load_file(path#String, const_paths#Array) at ./activesupport-5.0.x/lib/active_support/dependencies.rb:476
+#12 block in ActiveSupport::Dependencies.block in require_or_load(file_name#String, const_path#String) at ./activesupport-5.0.x/lib/active_support/dependencies.rb:375
+#13 block in #<Class:ActiveSupport::Dependencies>.block in load_interlock at ./activesupport-5.0.x/lib/active_support/dependencies.rb:37
+#14 block in ActiveSupport::Dependencies::Interlock.block in loading at ./activesupport-5.0.x/lib/active_support/dependencies/interlock.rb:12
+#15 ActiveSupport::Concurrency::ShareLock.exclusive(purpose#Symbol, compatible#Array, after_compatible#Array, no_wait#FalseClass) at ./activesupport-5.0.x/lib/active_support/concurrency/share_lock.rb:150
+#16 ActiveSupport::Dependencies::Interlock.loading at ./activesupport-5.0.x/lib/active_support/dependencies/interlock.rb:11
+#17 #<Class:ActiveSupport::Dependencies>.load_interlock at ./activesupport-5.0.x/lib/active_support/dependencies.rb:37
+#18 ActiveSupport::Dependencies.require_or_load(file_name#String, const_path#String) at ./activesupport-5.0.x/lib/active_support/dependencies.rb:358
+#19 ActiveSupport::Dependencies.load_missing_constant(from_mod#Class, const_name#Symbol) at ./activesupport-5.0.x/lib/active_support/dependencies.rb:511
+#20 ActiveSupport::Dependencies::ModuleConstMissing.const_missing(const_name#Symbol) at ./activesupport-5.0.x/lib/active_support/dependencies.rb:203
+ͱ-- #21 Module.const_get(*args) at ./activesupport-5.0.x/lib/active_support/inflector/methods.rb:268
+#22 block in ActiveSupport::Inflector.block in constantize(camel_cased_word#String) at ./activesupport-5.0.x/lib/active_support/inflector/methods.rb:268
+ͱ-- #23 Array.each at ./activesupport-5.0.x/lib/active_support/inflector/methods.rb:266
+ͱ-- #24 Enumerable.inject(*args) at ./activesupport-5.0.x/lib/active_support/inflector/methods.rb:266
+#25 ActiveSupport::Inflector.constantize(camel_cased_word#String) at ./activesupport-5.0.x/lib/active_support/inflector/methods.rb:266
+#26 String.constantize at ./activesupport-5.0.x/lib/active_support/core_ext/string/inflections.rb:66
+ͱ-- #27 Kernel.public_send(*args) at ./activesupport-5.0.x/lib/active_support/core_ext/object/try.rb:17
+#28 ActiveSupport::Tryable.try!(*a#Array, &b#NilClass) at ./activesupport-5.0.x/lib/active_support/core_ext/object/try.rb:17
+#29 ActiveSupport::Tryable.try(*a#Array, &b#NilClass) at ./activesupport-5.0.x/lib/active_support/core_ext/object/try.rb:6
+#30 #<Class:ActiveModel::Observer>.observed_class at ./rails-observers/lib/rails/observers/active_model/observer.rb:107
+#31 #<Class:ActiveModel::Observer>.observed_classes at ./rails-observers/lib/rails/observers/active_model/observer.rb:97
+#32 ActiveModel::Observer.observed_classes at ./rails-observers/lib/rails/observers/active_model/observer.rb:120
+#33 ActiveRecord::Observer.observed_classes at ./rails-observers/lib/rails/observers/active_record/observer.rb:100
+#34 ActiveModel::Observer.initialize at ./rails-observers/lib/rails/observers/active_model/observer.rb:115
+#38 #<Class:UserObserver>.instance at ./ruby-2.4.0-rc1/lib/ruby/2.4.0/singleton.rb:140
+#39 ActiveModel::Observing::ClassMethods.instantiate_observer(observer#Class) at ./rails-observers/lib/rails/observers/active_model/observing.rb:195
+#42 ActiveModel::Observing::ClassMethods.instantiate_observers at ./rails-observers/lib/rails/observers/active_model/observing.rb:114
+#45 #<Class:ActiveRecord::Base>.inherited(subclass#Class) at ./rails-observers/lib/rails/observers/active_model/observing.rb:17
+#46 <module:ActiveRecord> at ./rails-4277047018af/activerecord/lib/active_record/schema_migration.rb:9
+#47 <top (required)> at ./rails-4277047018af/activerecord/lib/active_record/schema_migration.rb:4
+ͱ-- #48 Kernel.require at ./activesupport-5.0.x/lib/active_support/dependencies.rb:293
+#49 block in ActiveSupport::Dependencies::Loadable.block in require(file#String) at ./activesupport-5.0.x/lib/active_support/dependencies.rb:293
+#50 ActiveSupport::Dependencies::Loadable.load_dependency(file#String) at ./activesupport-5.0.x/lib/active_support/dependencies.rb:259
+#51 ActiveSupport::Dependencies::Loadable.require(file#String) at ./activesupport-5.0.x/lib/active_support/dependencies.rb:293
+#52 ActiveRecord::ConnectionAdapters::SchemaStatements.initialize_schema_migrations_table at ./rails-4277047018af/activerecord/lib/active_record/connection_adapters/abstract/schema_statements.rb:1008
+#53 ActiveRecord::Migrator.initialize(direction#Symbol, migrations#Array, target_version#NilClass) at ./rails-4277047018af/activerecord/lib/active_record/migration.rb:1109
+ͱ-- #54 Class.new(*args) at ./rails-4277047018af/activerecord/lib/active_record/migration.rb:1006
+#55 #<Class:ActiveRecord::Migrator>.up(migrations_paths#Array, target_version#NilClass) at ./rails-4277047018af/activerecord/lib/active_record/migration.rb:1006
+#56 #<Class:ActiveRecord::Migrator>.migrate(migrations_paths#Array, target_version#NilClass, &block#Proc) at ./rails-4277047018af/activerecord/lib/active_record/migration.rb:984
+#57 ActiveRecord::Tasks::DatabaseTasks.migrate at ./rails-4277047018af/activerecord/lib/active_record/tasks/database_tasks.rb:161
+#58 block (2 levels) in block (2 levels) in <top (required)> at ./rails-4277047018af/activerecord/lib/active_record/railties/databases.rake:58
+#59 block in Rake::Task.block in execute(args#Rake::TaskArguments) at ./rake-12.0.0/lib/rake/task.rb:250
+ͱ-- #60 Array.each at ./rake-12.0.0/lib/rake/task.rb:250
+#61 Rake::Task.execute(args#Rake::TaskArguments) at ./rake-12.0.0/lib/rake/task.rb:250
+#62 block in Rake::Task.block in invoke_with_call_chain(task_args#Rake::TaskArguments, invocation_chain#Rake::InvocationChain::EmptyInvocationChain) at ./rake-12.0.0/lib/rake/task.rb:194
+#63 MonitorMixin.mon_synchronize at ./ruby-2.4.0-rc1/lib/ruby/2.4.0/monitor.rb:214
+#64 Rake::Task.invoke_with_call_chain(task_args#Rake::TaskArguments, invocation_chain#Rake::InvocationChain::EmptyInvocationChain) at ./rake-12.0.0/lib/rake/task.rb:187
+#65 Rake::Task.invoke(*args#Array) at ./rake-12.0.0/lib/rake/task.rb:180
+#66 Rake::Application.invoke_task(task_string#String) at ./rake-12.0.0/lib/rake/application.rb:152
+#67 block (2 levels) in Rake::Application.block (2 levels) in top_level at ./rake-12.0.0/lib/rake/application.rb:108
+ͱ-- #68 Array.each at ./rake-12.0.0/lib/rake/application.rb:108
+#69 block in Rake::Application.block in top_level at ./rake-12.0.0/lib/rake/application.rb:108
+#70 Rake::Application.run_with_threads at ./rake-12.0.0/lib/rake/application.rb:117
+#71 Rake::Application.top_level at ./rake-12.0.0/lib/rake/application.rb:102
+#72 block in Rake::Application.block in run at ./rake-12.0.0/lib/rake/application.rb:80
+#73 Rake::Application.standard_exception_handling at ./rake-12.0.0/lib/rake/application.rb:178
+#74 Rake::Application.run at ./rake-12.0.0/lib/rake/application.rb:77
+#75 <top (required)> at ./rake-12.0.0/exe/rake:27
+ͱ-- #76 Kernel.load at ./ruby-2.4.0-rc1/bin/rake:22
+#77 <main> at ./ruby-2.4.0-rc1/bin/rake:22

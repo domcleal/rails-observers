@@ -77,9 +77,9 @@ module ActiveModel
       #
       #   AuditObserver.observed_classes # => [Account, Balance]
       def observe(*models)
-        models.flatten!
-        models.collect! { |model| model.respond_to?(:to_sym) ? model.to_s.camelize.constantize : model }
-        singleton_class.redefine_method(:observed_classes) { models }
+        models = models.flatten.map(&:to_s).reject(&:blank?)
+        @observed_classes ||= Set.new
+        @observed_classes += models.map(&:underscore).map(&:freeze).reject(&:blank?)
       end
 
       # Returns an array of Classes to observe.
@@ -94,18 +94,23 @@ module ActiveModel
       #     end
       #   end
       def observed_classes
-        Array(observed_class)
+        return @observed_classes if defined?(@observed_classes)
+        default_observed_class
       end
 
       # Returns the class observed by default. It's inferred from the observer's
       # class name.
       #
-      #   PersonObserver.observed_class  # => Person
-      #   AccountObserver.observed_class # => Account
-      def observed_class
-        name[/(.*)Observer/, 1].try :constantize
+      #   PersonObserver.default_observed_class  # => Person
+      #   AccountObserver.default_observed_class # => Account
+      def default_observed_class
+        return @default_observed_class if defined?(@default_observed_class)
+        class_name = self.name.underscore.sub(/\A(.*)_observer\z/, '\1')
+        @default_observed_class = Set.new([class_name.freeze]).freeze
       end
     end
+
+    delegate :observed_classes, :to => :class
 
     # Start observing the declared classes and their subclasses.
     # Called automatically by the instance method.
@@ -113,9 +118,6 @@ module ActiveModel
       observed_classes.each { |klass| observe!(klass) }
     end
 
-    def observed_classes #:nodoc:
-      self.class.observed_classes
-    end
 
     # Send observed_method(object) if the method exists and
     # the observer is enabled for the given object's class.

@@ -1,4 +1,4 @@
-require 'rails/observers/active_model/observing'
+require 'rails/observers/active_resource'
 
 module ActiveResource
   module Observing

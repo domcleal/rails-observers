@@ -35,7 +35,7 @@ module ActionController #:nodoc:
           configuration = sweepers.extract_options!
 
           sweepers.each do |sweeper|
-            ActiveRecord::Base.observers << sweeper if defined?(ActiveRecord) and defined?(ActiveRecord::Base)
+            ::ActiveRecord::Base.observers << sweeper if defined?(::ActiveRecord) and defined?(::ActiveRecord::Base)
             sweeper_instance = (sweeper.is_a?(Symbol) ? Object.const_get(sweeper.to_s.classify) : sweeper).instance
 
             if sweeper_instance.is_a?(Sweeper)

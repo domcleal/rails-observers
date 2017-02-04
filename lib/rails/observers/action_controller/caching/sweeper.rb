@@ -1,6 +1,8 @@
+require 'rails/observers/active_record'
+
 module ActionController #:nodoc:
   module Caching
-    class Sweeper < ActiveRecord::Observer #:nodoc:
+    class Sweeper < ::ActiveRecord::Observer #:nodoc:
       attr_accessor :controller
 
       def initialize(*args)

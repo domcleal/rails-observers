@@ -1,6 +1,6 @@
 require 'minitest/autorun'
 require 'active_resource'
-require 'rails/observers/active_resource/observing'
+require 'rails/observers/active_resource'
 
 ActiveResource::Base.prepend ActiveResource::Observing
 

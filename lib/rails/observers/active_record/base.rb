@@ -1,4 +1,6 @@
-require 'rails/observers/active_model/active_model'
+require 'active_record'
+require 'rails/observers/active_model'
+require 'rails/observers/active_record/observer'
 
 module ActiveRecord
   class Base

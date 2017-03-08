@@ -36,8 +36,7 @@ module ActiveModel
   # <tt>ProductManagerObserver</tt> to <tt>ProductManager</tt>, and so on. If
   # you want to name your observer differently than the class you're interested
   # in observing, you can use the <tt>Observer.observe</tt> class method which
-  # takes either the concrete class (<tt>Product</tt>) or a symbol for that
-  # class (<tt>:product</tt>):
+  # takes a symbol for that class (<tt>:product</tt>):
   #
   #   class AuditObserver < ActiveModel::Observer
   #     observe :account
@@ -75,49 +74,52 @@ module ActiveModel
       #     observe :account, :balance
       #   end
       #
-      #   AuditObserver.observed_classes # => [Account, Balance]
+      #   AuditObserver.observed_class_names # => [:account, :balance]
       def observe(*models)
+        raise ArgumentError, "#{self}.observe must be passed class names and not constants, to prevent circular dependencies or reloading issues between the model and observer" if models.any? { |m| m.is_a?(Class) }
         models = models.flatten.map(&:to_s).reject(&:blank?)
-        @observed_classes ||= Set.new
-        @observed_classes += models.map(&:underscore).map(&:freeze).reject(&:blank?)
+        @observed_class_names = models.map(&:underscore).map(&:freeze).reject(&:blank?).uniq
       end
 
-      # Returns an array of Classes to observe.
+      # Returns an array of underscored class names to observe.
       #
-      #   AccountObserver.observed_classes # => [Account]
+      #   AccountObserver.observed_class_names # => ["account"]
       #
       # You can override this instead of using the +observe+ helper.
       #
       #   class AuditObserver < ActiveModel::Observer
-      #     def self.observed_classes
-      #       [Account, Balance]
+      #     def self.observed_class_names
+      #       ["account", "balance"]
       #     end
       #   end
-      def observed_classes
-        return @observed_classes if defined?(@observed_classes)
+      def observed_class_names
+        return @observed_class_names.to_a if defined?(@observed_class_names)
         default_observed_class
+      end
+
+      def observed_classes
+        ActiveSupport::Deprecation.warn(".observed_classes is deprecated for future removal, prefer observed_class_names to prevent autoloading of classes")
+        observed_class_names.map { |name| name.to_s.camelize.constantize }.freeze
       end
 
       # Returns the class observed by default. It's inferred from the observer's
       # class name.
       #
-      #   PersonObserver.default_observed_class  # => Person
-      #   AccountObserver.default_observed_class # => Account
+      #   PersonObserver.default_observed_class  # => ["person"]
+      #   AccountObserver.default_observed_class # => ["account"]
       def default_observed_class
         return @default_observed_class if defined?(@default_observed_class)
         class_name = self.name.underscore.sub(/\A(.*)_observer\z/, '\1')
-        @default_observed_class = Set.new([class_name.freeze]).freeze
+        @default_observed_class = [class_name.freeze].freeze
+      end
+
+      def observed_class
+        ActiveSupport::Deprecation.warn(".observed_class is deprecated for future removal, prefer default_observed_class to prevent autoloading of classes")
+        default_observed_class.first.to_s.camelize.constantize
       end
     end
 
-    delegate :observed_classes, :to => :class
-
-    # Start observing the declared classes and their subclasses.
-    # Called automatically by the instance method.
-    def initialize #:nodoc:
-      observed_classes.each { |klass| observe!(klass) }
-    end
-
+    delegate :observed_class_names, :observed_classes, :to => :class
 
     # Send observed_method(object) if the method exists and
     # the observer is enabled for the given object's class.
@@ -126,10 +128,17 @@ module ActiveModel
       send(observed_method, object, *extra_args, &block)
     end
 
+    # Special method sent when a new class is created in the ORM, allow
+    # this observer to observe the class if it's known to it.
+    def try_hook!(klass)
+      return unless observed_class_names.include?(klass.name.underscore)
+      observe!(klass)
+    end
+
     # Special method sent by the observed class when it is inherited.
     # Passes the new subclass.
     def observed_class_inherited(subclass) #:nodoc:
-      self.class.observe(observed_classes + [subclass])
+      self.class.observe(observed_class_names + [subclass])
       observe!(subclass)
     end
 

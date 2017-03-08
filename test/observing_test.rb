@@ -1,4 +1,4 @@
-require 'minitest/autorun'
+require 'helper'
 require 'active_model'
 require 'rails/observers/active_model'
 
@@ -32,15 +32,12 @@ end
 class ObservingTest < ActiveModel::TestCase
   def setup
     ObservedModel.observers.clear
-    FooObserver.singleton_class.instance_eval do
-      alias_method :original_observed_classes, :observed_classes
-    end
   end
 
   def teardown
-    FooObserver.singleton_class.instance_eval do
-      undef_method :observed_classes
-      alias_method :observed_classes, :original_observed_classes
+    FooObserver.class_eval do
+      remove_instance_variable :@observed_class_names if defined?(@observed_class_names)
+      remove_instance_variable :@default_observed_class if defined?(@default_observed_class)
     end
   end
 
@@ -107,49 +104,54 @@ end
 class ObserverTest < ActiveModel::TestCase
   def setup
     ObservedModel.observers = :foo_observer
-    FooObserver.singleton_class.instance_eval do
-      alias_method :original_observed_classes, :observed_classes
-    end
   end
 
   def teardown
-    FooObserver.singleton_class.instance_eval do
-      undef_method :observed_classes
-      alias_method :observed_classes, :original_observed_classes
+    FooObserver.class_eval do
+      remove_instance_variable :@observed_class_names if defined?(@observed_class_names)
+      remove_instance_variable :@default_observed_class if defined?(@default_observed_class)
     end
   end
 
   test "guesses implicit observable model name" do
+    assert_equal ['foo'], FooObserver.default_observed_class
+  end
+
+  test "guesses implicit observable model name (compatibility)" do
     assert_equal Foo, FooObserver.observed_class
   end
 
   test "tracks implicit observable models" do
     instance = FooObserver.new
+    assert_equal ['foo'], instance.observed_class_names
+  end
+
+  test "tracks implicit observable models (compatibility)" do
+    instance = FooObserver.new
     assert_equal [Foo], instance.observed_classes
   end
 
-  test "tracks explicit observed model class" do
-    FooObserver.observe ObservedModel
-    instance = FooObserver.new
-    assert_equal [ObservedModel], instance.observed_classes
+  test "does not permit observing model class" do
+    assert_raise(ArgumentError) { FooObserver.observe ObservedModel }
   end
 
   test "tracks explicit observed model as string" do
     FooObserver.observe 'observed_model'
     instance = FooObserver.new
-    assert_equal [ObservedModel], instance.observed_classes
+    assert_equal ['observed_model'], instance.observed_class_names
   end
 
   test "tracks explicit observed model as symbol" do
     FooObserver.observe :observed_model
     instance = FooObserver.new
-    assert_equal [ObservedModel], instance.observed_classes
+    assert_equal ['observed_model'], instance.observed_class_names
   end
 
   test "calls existing observer event" do
     foo = Foo.new
     FooObserver.instance.stub = stub
     FooObserver.instance.stub.expects(:event_with).with(foo)
+    FooObserver.instance.try_hook! Foo
     Foo.notify_observers(:on_spec, foo)
   end
 
@@ -157,6 +159,7 @@ class ObserverTest < ActiveModel::TestCase
     foo = Foo.new
     FooObserver.instance.stub = stub
     FooObserver.instance.stub.expects(:event_with).with(foo)
+    FooObserver.instance.try_hook! Foo
     foo.notify_observers(:on_spec)
   end
 
@@ -164,6 +167,7 @@ class ObserverTest < ActiveModel::TestCase
     foo = Foo.new
     FooObserver.instance.stub = stub
     FooObserver.instance.stub.expects(:event_with).with(foo, :bar)
+    FooObserver.instance.try_hook! Foo
     Foo.send(:notify_observers, :on_spec, foo, :bar)
   end
 
@@ -187,7 +191,7 @@ class ObserverTest < ActiveModel::TestCase
 
     assert_equal [Foo], BarObserver.observed_classes
 
-    BarObserver.observe(ObservedModel)
+    BarObserver.observe(:observed_model)
     assert_equal [ObservedModel], BarObserver.observed_classes
   end
 end

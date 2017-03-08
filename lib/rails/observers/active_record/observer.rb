@@ -32,7 +32,7 @@ module ActiveRecord
   # Observers will by default be mapped to the class with which they share a name. So CommentObserver will
   # be tied to observing Comment, ProductManagerObserver to ProductManager, and so on. If you want to name your observer
   # differently than the class you're interested in observing, you can use the Observer.observe class method which takes
-  # either the concrete class (Product) or a symbol for that class (:product):
+  # an underscored symbol for that class name (:product, :'my_application/product'):
   #
   #   class AuditObserver < ActiveRecord::Observer
   #     observe :account
@@ -80,17 +80,17 @@ module ActiveRecord
   #
   # == Loading
   #
-  # Observers register themselves in the model class they observe, since it is the class that
-  # notifies them of events when they occur. As a side-effect, when an observer is loaded its
-  # corresponding model class is loaded.
+  # Observers register themselves in the model class they observe when the class is
+  # defined, inheriting from ActiveRecord::Base, since it is the class that notifies
+  # them of events when they occur.
   #
   # Up to (and including) Rails 2.0.2 observers were instantiated between plugins and
   # application initializers. Now observers are loaded after application initializers,
   # so observed models can make use of extensions.
   #
   # If by any chance you are using observed models in the initialization you can still
-  # load their observers by calling <tt>ModelObserver.instance</tt> before. Observers are
-  # singletons and that call instantiates and registers them.
+  # load their observers by calling <tt>ModelObserver.instance.try_hook!(Model)</tt>
+  # before. Observers are singletons and that call instantiates and registers them.
   #
   class Observer < ActiveModel::Observer
 
@@ -101,7 +101,7 @@ module ActiveRecord
         klasses + klasses.map { |klass| klass.descendants }.flatten
       end
 
-      def add_observer!(klass)
+      def observe!(klass)
         super
         define_callbacks klass
       end

@@ -9,7 +9,9 @@ module ActiveModel
       extend ::ActiveSupport::DescendantsTracker
       def self.inherited(subclass)
         super
-        subclass.observer_orm.instantiate_observers
+        subclass.observer_orm.instantiate_observers.each do |observer_inst|
+          observer_inst.try_hook!(subclass)
+        end
       end
     end
 
@@ -95,14 +97,15 @@ module ActiveModel
       #   foo.notify_observers(:on_spec)
       #   foo.status # => false
       #
-      #   Foo.instantiate_observers # => [FooObserver]
+      #   obs = Foo.instantiate_observers # => [#<FooObserver:0x007fc212c40820>]
+      #   obs.each { |o| o.try_hook!(Foo) }
       #
       #   foo = Foo.new
       #   foo.status = false
       #   foo.notify_observers(:on_spec)
       #   foo.status # => true
       def instantiate_observers
-        observers.each { |o| instantiate_observer(o) }
+        observers.map { |o| instantiate_observer(o) }
       end
 
       # Add a new observer to the pool. The new observer needs to respond to
@@ -117,7 +120,7 @@ module ActiveModel
       #
       #   Foo.add_observer(FooObserver.instance)
       #
-      #   Foo.observers_instance
+      #   Foo.observer_instances
       #   # => [#<FooObserver:0x007fccf55d9390>]
       def add_observer(observer)
         unless observer.respond_to? :update
@@ -177,8 +180,8 @@ module ActiveModel
       # referring to the Active.*::Base class that included ::ActiveModel::Observing
       def observer_orm #:nodoc:#
         @@observer_orm ||= begin
-          self_and_parents = self.parents.unshift(self)
-          self_and_parents.detect do |klass|
+          self_and_parents = self.ancestors.unshift(self)
+          self_and_parents.reverse.detect do |klass|
             klass.included_modules.include?(::ActiveModel::Observing)
           end
         end

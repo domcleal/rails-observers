@@ -131,6 +131,7 @@ module ActiveModel
     # Special method sent when a new class is created in the ORM, allow
     # this observer to observe the class if it's known to it.
     def try_hook!(klass)
+      return if klass.name.nil?
       return unless observed_class_names.include?(klass.name.underscore)
       observe!(klass)
     end
